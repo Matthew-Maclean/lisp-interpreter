@@ -1,0 +1,6 @@
+[package]
+name = "lisp-interpreter"
+version = "0.1.0"
+authors = ["Matthew <Matthew-Maclean@users.noreply.github.com>"]
+
+[dependencies]

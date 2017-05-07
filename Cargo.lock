@@ -1,0 +1,4 @@
+[root]
+name = "lisp-interpreter"
+version = "0.1.0"
+
