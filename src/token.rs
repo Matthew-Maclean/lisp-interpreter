@@ -101,7 +101,7 @@ mod test
     {
         let input = "(label fac (lambda (n)   ; here we pretend that a number sytem exists
             (cond                             ;
-                ((num-eq zero n) (zero))      ; we also pretend that a num-eq function exists, and a zero value
+                ((num-eq zero n) 'zero)       ; we also pretend that a num-eq function exists, and a zero value
                 ('t (num-mul                  ; also the num-mul function
                     n                         ;
                     (fac                      ;
@@ -124,9 +124,8 @@ mod test
                                 Token::Ident("zero".to_owned()),
                                 Token::Ident("n".to_owned()),
                             Token::CloseParen,
-                            Token::OpenParen,
-                                Token::Ident("zero".to_owned()),
-                            Token::CloseParen,
+                            Token::Quote,
+                            Token::Ident("zero".to_owned()),
                         Token::CloseParen,
                         Token::OpenParen,
                             Token::Quote,
