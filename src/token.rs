@@ -65,6 +65,30 @@ impl Token
 
         tokens
     }
+
+    pub fn count_parens(tokens: Vec<Token>) -> Option<usize>
+    {
+        let mut open = 0;
+
+        for token in tokens.iter()
+        {
+            match token
+            {
+                &Token::OpenParen => open += 1,
+                &Token::CloseParen => if open == 0
+                {
+                    return None
+                }
+                else
+                {
+                    open -= 1;
+                },
+                _ => {}
+            }
+        }
+
+        Some(open)
+    }
 }
 
 #[cfg(test)]
