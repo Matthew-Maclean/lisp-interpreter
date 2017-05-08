@@ -182,7 +182,49 @@ pub fn eval(input: Expression) -> Result<Expression, String>
                         },
                         _ => Err(format!("The argument list of a function must be a list"))
                     },
-                    "macro" => unimplemented!(),
+                    "macro" => match &func.as_slice()[1]
+                    {
+                        &Expression::List(ref args) =>
+                        {
+                            if args.len() != arguments.len()
+                            {
+                                return Err(format!("Tried to call a macro that accepts {} arguments with {} arguments", args.len(), arguments.len()))
+                            }
+
+                            if !args.as_slice().iter().all(|e| match e
+                            {
+                                &Expression::Atom(_) => true,
+                                _ => false
+                            })
+                            {
+                                return Err(format!("All elements in a macros's argument list must be atoms"))
+                            }
+
+                            let argument_values =
+                            {
+                                let mut v = Vec::new();
+                                
+                                for arg in arguments.iter()
+                                {
+                                    v.push(arg.clone());
+                                }
+
+                                v
+                            };
+
+                            let subs = args.as_slice().iter()
+                                .map(|e| match e
+                                {
+                                    &Expression::Atom(ref atom) => atom.as_str().to_owned(),
+                                    _ => unreachable!()
+                                })
+                                .zip(argument_values.into_iter())
+                                .collect::<HashMap<_, _>>();
+                            
+                            eval_inner(func.as_slice()[2].clone(), &stack_push(stack, subs))
+                        },
+                        _ => Err(format!("The argument list of a macro must be a list"))
+                    },
                     "label" => match &func.as_slice()[1]
                     {
                         &Expression::Atom(ref name) =>
