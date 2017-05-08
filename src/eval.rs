@@ -406,6 +406,22 @@ mod test
     }
 
     #[test]
+    fn macro_()
+    {
+        let input = "((macro (x) (cons x '(b c))) a)";
+
+        let expected = Expression::List(List::new(vec![
+            Expression::Atom(Atom::new("a")),
+            Expression::Atom(Atom::new("b")),
+            Expression::Atom(Atom::new("c"))
+        ]));
+
+        let actual = eval(Expression::parse(Token::lex(input)).unwrap()).unwrap();
+
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
     fn label()
     {
         let input = "((label f (lambda (x) (cond ((atom x) (f '())) ('t 'b)))) 'a)";
