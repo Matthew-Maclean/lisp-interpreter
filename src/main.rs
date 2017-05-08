@@ -2,6 +2,7 @@
 
 mod token;
 mod expression;
+mod eval;
 
 fn main()
 {
