@@ -231,3 +231,147 @@ pub fn eval(input: Expression) -> Result<Expression, String>
 
     eval_inner(input, &Vec::new())
 }
+
+#[cfg(test)]
+mod test
+{
+    use super::eval;
+
+    use expression::*;
+    use token::*;
+
+    #[test]
+    fn quote()
+    {
+        let input = "'t";
+
+        let expected = Expression::Atom(Atom::new("t"));
+
+        let actual = eval(Expression::parse(Token::lex(input)).unwrap()).unwrap();
+
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn atom()
+    {
+        let input_1 = "(atom 't)";
+        let input_2 = "(atom '())";
+
+        let expected_1 = Expression::Atom(Atom::new("t"));
+        let expected_2 = Expression::List(List::new(vec![]));
+
+        let actual_1 = eval(Expression::parse(Token::lex(input_1)).unwrap()).unwrap();
+        let actual_2 = eval(Expression::parse(Token::lex(input_2)).unwrap()).unwrap();
+
+        assert_eq!(expected_1, actual_1);
+        assert_eq!(expected_2, actual_2);
+    }
+    
+    #[test]
+    fn eq()
+    {
+        let input_1 = "(eq 't 't)";
+        let input_2 = "(eq '() '())";
+        let input_3 = "(eq 't '())";
+
+        let expected_1 = Expression::Atom(Atom::new("t"));
+        let expected_2 = Expression::Atom(Atom::new("t"));
+        let expected_3 = Expression::List(List::new(vec![]));
+
+        let actual_1 = eval(Expression::parse(Token::lex(input_1)).unwrap()).unwrap();
+        let actual_2 = eval(Expression::parse(Token::lex(input_2)).unwrap()).unwrap();
+        let actual_3 = eval(Expression::parse(Token::lex(input_3)).unwrap()).unwrap();
+
+        assert_eq!(expected_1, actual_1);
+        assert_eq!(expected_2, actual_2);
+        assert_eq!(expected_3, actual_3);
+    }
+
+    #[test]
+    fn car()
+    {
+        let input = "(car '(a b c))";
+
+        let expected = Expression::Atom(Atom::new("a"));
+
+        let actual = eval(Expression::parse(Token::lex(input)).unwrap()).unwrap();
+
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn cdr()
+    {
+        let input = "(cdr '(a b c))";
+
+        let expected = Expression::List(List::new(vec![
+            Expression::Atom(Atom::new("b")),
+            Expression::Atom(Atom::new("c"))
+        ]));
+
+        let actual = eval(Expression::parse(Token::lex(input)).unwrap()).unwrap();
+
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn cons()
+    {
+        let input = "(cons 'a '(b c))";
+
+        let expected = Expression::List(List::new(vec![
+            Expression::Atom(Atom::new("a")),
+            Expression::Atom(Atom::new("b")),
+            Expression::Atom(Atom::new("c"))
+        ]));
+
+        let actual = eval(Expression::parse(Token::lex(input)).unwrap()).unwrap();
+
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn cond()
+    {
+        let input_1 = "(cond ('() 'a) ('a 'b))";
+        let input_2 = "(cond ('t 'a) ('() 'b))";
+
+        let expected_1 = Expression::Atom(Atom::new("b"));
+        let expected_2 = Expression::Atom(Atom::new("a"));
+
+        let actual_1 = eval(Expression::parse(Token::lex(input_1)).unwrap()).unwrap();
+        let actual_2 = eval(Expression::parse(Token::lex(input_2)).unwrap()).unwrap();
+
+        assert_eq!(expected_1, actual_1);
+        assert_eq!(expected_2, actual_2);
+    }
+
+    #[test]
+    fn lambda()
+    {
+        let input = "((lambda (x) (cons x '(b c))) 'a)";
+
+        let expected = Expression::List(List::new(vec![
+            Expression::Atom(Atom::new("a")),
+            Expression::Atom(Atom::new("b")),
+            Expression::Atom(Atom::new("c"))
+        ]));
+
+        let actual = eval(Expression::parse(Token::lex(input)).unwrap()).unwrap();
+
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn label()
+    {
+        let input = "((label f (lambda (x) (cond ((atom x) (f '())) ('t 'b)))) 'a)";
+
+        let expected = Expression::Atom(Atom::new("b"));
+
+        let actual = eval(Expression::parse(Token::lex(input)).unwrap()).unwrap();
+
+        assert_eq!(expected, actual);
+    }
+}
