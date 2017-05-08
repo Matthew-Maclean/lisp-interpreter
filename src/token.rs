@@ -66,7 +66,7 @@ impl Token
         tokens
     }
 
-    pub fn count_parens(tokens: Vec<Token>) -> Option<usize>
+    pub fn count_parens(tokens: &[Token]) -> Option<usize>
     {
         let mut open = 0;
 

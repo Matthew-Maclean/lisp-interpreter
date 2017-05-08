@@ -23,6 +23,20 @@ pub enum ParseError
     TooManyCloseParens,
 }
 
+use std::fmt;
+
+impl fmt::Display for ParseError
+{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
+    {
+        match *self
+        {
+            ParseError::TooManyOpenParens => write!(f, "Too many open parenthesis"),
+            ParseError::TooManyCloseParens => write!(f, "Too many close parenthesis")
+        }
+    }
+}
+
 impl Expression
 {
     pub fn parse(tokens: Vec<Token>) -> Result<Expression, ParseError>
@@ -76,8 +90,6 @@ impl Expression
         Ok(parse_inner(&tokens, 0)?.0)
     }
 }
-
-use std::fmt;
 
 impl fmt::Display for Expression
 {
