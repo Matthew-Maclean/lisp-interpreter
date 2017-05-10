@@ -75,16 +75,16 @@ pub fn eval(input: Expression) -> Result<Expression, String>
                         {
                             3 => match (eval_inner(list.as_slice()[1].clone(), stack)?, eval_inner(list.as_slice()[2].clone(), stack)?)
                             {
-                                (Expression::Atom(first), Expression::List(rest)) =>
+                                (first, Expression::List(rest)) =>
                                 {
-                                    let mut tmp = vec![Expression::Atom(first)];
+                                    let mut tmp = vec![first];
                                     for item in rest.as_slice().iter()
                                     {
                                         tmp.push(item.clone());
                                     }
                                     Ok(Expression::List(List::new(tmp)))
                                 },
-                                _ => Err(format!("cons expects an atom and a list as arguments"))
+                                _ => Err(format!("cons expects an a list as it's second argument"))
                             },
                             n => Err(format!("cons expects two arguments, not {}", n - 1))
                         },
