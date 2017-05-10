@@ -61,7 +61,7 @@ fn main()
             }
         };
 
-        if open == 0
+        if open == 0 && tokens.len() != 0
         {
             match Expression::parse(tokens.clone())
             {
