@@ -36,12 +36,7 @@ fn main()
 
         io::stdout().flush().expect("Could not flush stdout");
 
-        let input = format!("{}\n", stdin
-            .lock()
-            .lines()
-            .next()
-            .expect("Could not read next line from stdin")
-            .unwrap());
+        let input = format!("{}\n", readln(&stdin));
         
         if input == "; exit\n"
         {
@@ -76,4 +71,13 @@ fn main()
             tokens.clear();
         }
     }
+}
+
+fn readln(stdin: &io::Stdin) -> String
+{
+    stdin.lock()
+        .lines()
+        .next()
+        .expect("Cound not read line from stdin")
+        .unwrap()
 }
