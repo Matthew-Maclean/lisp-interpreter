@@ -1,5 +1,7 @@
 #![allow(dead_code)]
 
+extern crate clap;
+
 mod token;
 mod expression;
 mod eval;
@@ -8,10 +10,72 @@ use token::Token;
 use expression::Expression;
 use eval::eval;
 
-use std::io::{self, BufRead, Write};
-
 fn main()
 {
+    use clap::*;
+
+    let matches = App::new("lisp-interpreter")
+        .author("Matthew Maclean")
+        .about("Minimal lisp interpreter")
+        .arg(Arg::with_name("file")
+            .short("f")
+            .long("file")
+            .help("interprets from a file")
+            .takes_value(true)
+            .value_name("FILE")
+            .required(false))
+        .get_matches();
+    
+    if matches.is_present("file")
+    {
+        file(matches.value_of("file")
+            .expect("the --file option requires an input file"));
+    }
+    else
+    {
+        repl();
+    }
+}
+
+fn file(path: &str)
+{
+    use std::fs::File;
+    use std::io::Read;
+
+    let mut file = match File::open(path)
+    {
+        Ok(f) => f,
+        Err(_) => bad_exit("Unable to open file")
+    };
+
+    let input =
+    {
+        let mut s = String::new();
+        match file.read_to_string(&mut s)
+        {
+            Ok(_) => {},
+            Err(_) => bad_exit("Unable to read from file")
+        }
+        s
+    };
+
+    let tokens = Token::lex(&input);
+
+    match Expression::parse(tokens)
+    {
+        Ok(expr) => match eval(expr)
+        {
+            Ok(val) => println!("{}", val),
+            Err(err) => println!("err: {}", err)
+        },
+        Err(err) => println!("err: {}", err)
+    }
+}
+
+fn repl()
+{
+    use std::io::{self, Write};
+
     println!("comment 'exit' to exit");
 
     let mut open = 0;
@@ -73,11 +137,19 @@ fn main()
     }
 }
 
-fn readln(stdin: &io::Stdin) -> String
+fn readln(stdin: &::std::io::Stdin) -> String
 {
+    use std::io::BufRead;
+
     stdin.lock()
         .lines()
         .next()
         .expect("Cound not read line from stdin")
         .unwrap()
+}
+
+fn bad_exit(msg: &str) -> !
+{
+    println!("{}", msg);
+    ::std::process::exit(1);
 }
